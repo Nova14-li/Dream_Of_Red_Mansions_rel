@@ -1,0 +1,130 @@
+/* ==========================================================================
+   骨架布局
+   顶栏、标签导航、搜索框、主区域、筛选侧栏
+   --------------------------------------------------------------------------
+   样式层级：tokens → layout → graph → views → responsive
+   文件：assets/css/layout.css
+   ========================================================================== */
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex;align-items:center;gap:18px;padding:10px 18px;
+  background:linear-gradient(180deg,#fffdf8,#f8f2e6);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 2px 10px rgba(74,54,32,.06);
+  position:relative;z-index:30;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.seal{
+  width:40px;height:40px;flex:0 0 40px;border-radius:9px;
+  background:linear-gradient(150deg,#a9332c,#8a1f1b);
+  color:#fdf3e3;font-family:var(--serif);font-size:24px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(138,31,27,.32), inset 0 0 0 1px rgba(255,240,220,.25);
+  letter-spacing:0;
+}
+.brand h1{
+  margin:0;font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:2px;
+  white-space:nowrap;
+}
+.brand p{
+  margin:2px 0 0;font-size:11px;color:var(--ink-3);letter-spacing:.6px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.tabs{display:flex;gap:4px;margin-left:6px;background:rgba(158,43,37,.05);padding:4px;border-radius:11px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  border:0;background:transparent;padding:7px 13px;border-radius:8px;
+  font-size:13px;color:var(--ink-2);letter-spacing:.5px;white-space:nowrap;
+  transition:background .18s,color .18s,box-shadow .18s;
+}
+.tabs button:hover{background:rgba(158,43,37,.08);color:var(--red)}
+.tabs button.active{
+  background:linear-gradient(180deg,#a9332c,#8f231e);color:#fff6ea;
+  box-shadow:0 2px 8px rgba(138,31,27,.28);
+}
+.search{margin-left:auto;position:relative;flex:0 1 240px}
+.search input{
+  width:100%;padding:8px 12px 8px 32px;border-radius:9px;border:1px solid var(--line);
+  background:#fffdf8;font-size:13px;color:var(--ink);outline:none;font-family:inherit;
+  transition:border-color .18s,box-shadow .18s;
+}
+.search input:focus{border-color:rgba(158,43,37,.45);box-shadow:0 0 0 3px rgba(158,43,37,.08)}
+.search::before{
+  content:"⌕";position:absolute;left:11px;top:50%;transform:translateY(-52%);
+  color:var(--ink-3);font-size:15px;
+}
+.suggest{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fffdf8;
+  border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);
+  overflow:hidden;display:none;max-height:280px;overflow-y:auto;z-index:50;
+}
+.suggest.show{display:block;animation:fadeDown .16s ease}
+.suggest div{padding:9px 12px;font-size:13px;display:flex;justify-content:space-between;gap:8px;cursor:pointer}
+.suggest div:hover,.suggest div.hl{background:rgba(158,43,37,.07)}
+.suggest span.t{font-size:11px;color:var(--ink-3)}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.icon-btn{
+  display:none;border:1px solid var(--line);background:#fffdf8;border-radius:9px;
+  padding:7px 11px;font-size:12px;color:var(--ink-2);
+}
+
+/* ---------- layout ---------- */
+main{flex:1;display:flex;min-height:0;position:relative}
+.sidebar{
+  width:264px;flex:0 0 264px;background:var(--paper-2);border-right:1px solid var(--line);
+  overflow-y:auto;padding:14px 14px 40px;z-index:20;
+}
+.sidebar::-webkit-scrollbar,.panel::-webkit-scrollbar,.scroll::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb,.panel::-webkit-scrollbar-thumb,.scroll::-webkit-scrollbar-thumb{
+  background:rgba(120,96,70,.22);border-radius:8px
+}
+.sect{margin-bottom:18px}
+.sect h3{
+  margin:0 0 9px;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--ink-3);
+  display:flex;align-items:center;gap:7px;
+}
+.sect h3::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.checks{display:flex;flex-direction:column;gap:5px}
+.check{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;
+  font-size:12.5px;color:var(--ink-2);cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.check:hover{background:rgba(158,43,37,.05)}
+.check .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px;opacity:.9}
+.check .num{margin-left:auto;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.check.on{background:rgba(158,43,37,.08);color:var(--ink);font-weight:600}
+.check .box{
+  width:13px;height:13px;border:1px solid rgba(92,72,50,.4);border-radius:3.5px;flex:0 0 13px;
+  display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;
+  transition:background .15s,border-color .15s;
+}
+.check.on .box{background:var(--red);border-color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  border:1px solid var(--line);background:#fffdf8;border-radius:20px;padding:4px 11px;
+  font-size:12px;color:var(--ink-2);transition:all .16s;
+}
+.chip:hover{border-color:rgba(158,43,37,.4);color:var(--red)}
+.chip.on{background:rgba(158,43,37,.1);border-color:rgba(158,43,37,.45);color:var(--red);font-weight:600}
+.legend{display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--ink-2)}
+.legend div{display:flex;align-items:center;gap:9px}
+.legend i{display:block;width:26px;height:0;border-top-width:2px;border-top-style:solid;flex:0 0 26px}
+.legend .node{width:12px;height:12px;border-radius:50%;border:0;flex:0 0 12px}
+.search-path{display:flex;flex-direction:column;gap:7px}
+.search-path select{
+  width:100%;padding:6px 8px;border-radius:7px;border:1px solid var(--line);
+  background:#fffdf8;font-size:12.5px;color:var(--ink);font-family:inherit;outline:none;
+}
+.btn{
+  border:1px solid rgba(158,43,37,.35);background:rgba(158,43,37,.06);color:var(--red);
+  border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;transition:all .16s;
+}
+.btn:hover{background:rgba(158,43,37,.12)}
+.btn.solid{background:linear-gradient(180deg,#a9332c,#8f231e);color:#fff6ea;border-color:transparent}
+.btn.ghost{border-color:var(--line);background:#fffdf8;color:var(--ink-2);font-weight:500}
+.btn.ghost:hover{border-color:rgba(158,43,37,.35);color:var(--red)}
+.path-out{font-size:12px;line-height:1.9;color:var(--ink-2);margin-top:4px;min-height:18px}
+.path-out b{color:var(--red);font-weight:600}
+.path-out .via{color:var(--gold);font-size:11px;padding:0 2px}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!--
+  红楼梦人物本体 · 知识图谱交互展示
+  ----------------------------------------------------------------------------
+  本文件只负责结构与资源引用，业务代码与样式全部拆分到 assets/ 下：
+    assets/css/     5 个样式分片，按 tokens → layout → graph → views → responsive 叠加
+    assets/data/    数据集（window.__DATA__，由 RDF 解析导出）
+    assets/js/      20 个模块，按 core / analysis / graph / views / ui 分层
+  模块之间通过 DRM.{meta,data,state,api} 通信，约定见 README.md
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>红楼梦人物本体 · 知识图谱交互展示</title>
+
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/layout.css">
+  <link rel="stylesheet" href="./assets/css/graph.css">
+  <link rel="stylesheet" href="./assets/css/views.css">
+  <link rel="stylesheet" href="./assets/css/responsive.css">
+</head>
+<body class="panel-off">
+<header class="topbar">
+  <div class="brand">
+    <div class="seal">紅</div>
+    <div class="brand-text">
+      <h1>红楼梦人物本体</h1>
+      <p>Dream of the Red Mansions Ontology · OWL 2 交互式知识图谱</p>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-view="graph" class="active">关系图谱</button>
+    <button data-view="tree">家族世系</button>
+    <button data-view="onto">本体结构</button>
+    <button data-view="reason">推理引擎</button>
+    <button data-view="triple">三元组</button>
+  </nav>
+  <div class="search">
+    <input id="search" type="text" placeholder="搜索人物 / 宅院 / 爵位…" autocomplete="off" spellcheck="false">
+    <div class="suggest" id="suggest"></div>
+  </div>
+  <button class="icon-btn" id="btn-filters">筛选</button>
+</header>
+
+<main>
+  <aside class="sidebar" id="sidebar">
+    <section class="sect">
+      <h3>实体类型</h3>
+      <div class="checks" id="f-types"></div>
+    </section>
+    <section class="sect">
+      <h3>性别</h3>
+      <div class="chips" id="f-gender"></div>
+    </section>
+    <section class="sect">
+      <h3>居所 / 地域</h3>
+      <div class="chips" id="f-places"></div>
+    </section>
+    <section class="sect">
+      <h3>关系图例</h3>
+      <div class="legend" id="legend"></div>
+    </section>
+    <section class="sect">
+      <h3>关系链查找</h3>
+      <div class="search-path">
+        <select id="path-from"></select>
+        <select id="path-to"></select>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="btn-path" style="flex:1">查找最短关系链</button>
+          <button class="btn ghost" id="btn-path-clear">清除</button>
+        </div>
+        <div class="path-out" id="path-out">选择两位人物，查看推理可达的关系链。</div>
+      </div>
+    </section>
+  </aside>
+
+  <section class="stage" id="stage">
+    <div class="view active" id="view-graph">
+      <canvas id="cv"></canvas>
+      <div class="graph-toolbar">
+        <button class="gbtn" id="btn-relayout">重新布局</button>
+        <button class="gbtn" id="btn-cluster">自由力学</button>
+        <button class="gbtn" id="btn-infer">显示推理边</button>
+        <button class="gbtn" id="btn-tour">自动巡游</button>
+        <button class="gbtn" id="btn-fit">复位视图</button>
+      </div>
+      <div class="graph-hint">拖拽节点 · 滚轮缩放 · 点击查看详情 · 双击聚焦</div>
+      <div class="tooltip" id="tip"></div>
+      <div class="pathbar" id="pathbar"></div>
+      <div class="tourbar" id="tourbar">
+        <span>巡游中</span><span class="big" id="tour-name">—</span>
+        <button class="gbtn" id="btn-tour-stop">停止</button>
+      </div>
+    </div>
+
+    <div class="view" id="view-tree">
+      <div class="tree-head">
+        <h2>贾府世系图</h2>
+        <p>辈分由 <code style="color:var(--gold)">父亲/母亲</code> 断言递归推导，本体本身不存储辈分</p>
+        <button class="gbtn" id="btn-tree-sib" style="margin-left:auto">显示兄弟姐妹</button>
+      </div>
+      <div class="tree-scroll"><svg id="tree-svg"></svg></div>
+    </div>
+
+    <div class="view" id="view-onto"><div class="scroll" id="onto-body"></div></div>
+    <div class="view" id="view-reason"><div class="scroll" id="reason-body"></div></div>
+    <div class="view" id="view-triple"><div class="scroll" id="triple-body"></div></div>
+  </section>
+
+  <aside class="panel" id="panel">
+    <div class="panel-empty" id="panel-empty">
+      点击左侧图谱中的任意节点，或在上方搜索人物名字，查看该实体的全部断言语义。
+      <div class="stat-grid" id="overview"></div>
+    </div>
+    <div id="panel-body" style="display:none"></div>
+  </aside>
+</main>
+
+<footer class="statusbar">
+  <span>数据源：dream_of_red_mansions.rdf</span>
+  <span class="dotsep"></span>
+  <span id="st-ns">http://example.org/myproject/dorm#</span>
+  <span class="dotsep"></span>
+  <span id="st-count">—</span>
+  <span class="right"><span id="st-hint">就绪</span></span>
+</footer>
+
+
+  <!-- 数据集：先就位，后续模块读取 window.__DATA__ -->
+  <script defer src="./assets/data/ontology.js"></script>
+
+  <!-- 基础层：命名空间 → 元信息 → 工具 → 数据 → 分析 → 状态 -->
+  <script defer src="./assets/js/core/namespace.js"></script>
+  <script defer src="./assets/js/core/meta.js"></script>
+  <script defer src="./assets/js/core/utils.js"></script>
+  <script defer src="./assets/js/core/data.js"></script>
+  <script defer src="./assets/js/analysis/inference.js"></script>
+  <script defer src="./assets/js/analysis/consistency.js"></script>
+  <script defer src="./assets/js/core/state.js"></script>
+
+  <!-- 图谱层：布局 → 力学 → 渲染 → 交互 -->
+  <script defer src="./assets/js/graph/layout.js"></script>
+  <script defer src="./assets/js/graph/simulation.js"></script>
+  <script defer src="./assets/js/graph/renderer.js"></script>
+  <script defer src="./assets/js/graph/interaction.js"></script>
+
+  <!-- 视图层：详情面板与四个整页视图 -->
+  <script defer src="./assets/js/views/panel.js"></script>
+  <script defer src="./assets/js/views/tree.js"></script>
+  <script defer src="./assets/js/views/ontology.js"></script>
+  <script defer src="./assets/js/views/reasoning.js"></script>
+  <script defer src="./assets/js/views/triples.js"></script>
+
+  <!-- 界面层：侧栏、关系链、搜索、巡游、路由 -->
+  <script defer src="./assets/js/ui/sidebar.js"></script>
+  <script defer src="./assets/js/ui/path.js"></script>
+  <script defer src="./assets/js/ui/search.js"></script>
+  <script defer src="./assets/js/ui/tour.js"></script>
+  <script defer src="./assets/js/ui/router.js"></script>
+
+  <!-- 入口：绑定事件并启动 -->
+  <script defer src="./assets/js/main.js"></script>
+</body>
+</html>

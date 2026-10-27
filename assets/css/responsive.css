@@ -1,0 +1,43 @@
+/* ==========================================================================
+   响应式断点
+   1180 / 1000 / 760 三档：侧栏抽屉化、面板下沉、标签栏网格化
+   --------------------------------------------------------------------------
+   样式层级：tokens → layout → graph → views → responsive
+   文件：assets/css/responsive.css
+   ========================================================================== */
+
+/* responsive */
+@media (max-width:1180px){
+  .brand p{display:none}
+  .search{flex:0 1 180px}
+  .panel{width:300px;flex-basis:300px}
+}
+@media (max-width:1000px){
+  .sidebar{position:absolute;left:0;top:0;bottom:0;width:270px;flex-basis:270px;
+    transform:translateX(-102%);transition:transform .26s ease;box-shadow:var(--shadow)}
+  .sidebar.open{transform:none}
+  .icon-btn{display:inline-block}
+  .tabs button{padding:7px 10px;font-size:12.5px}
+}
+@media (max-width:760px){
+  .topbar{padding:8px 12px;gap:10px;flex-wrap:wrap}
+  .brand h1{font-size:16px;letter-spacing:1px}
+  .seal{width:34px;height:34px;flex-basis:34px;font-size:20px}
+  .tabs{order:3;width:100%;margin:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;overflow:visible}
+  .tabs button{padding:6px 0;font-size:11.5px;letter-spacing:0;text-align:center}
+  .search{flex:1 1 130px;margin-left:0}
+  .panel{
+    position:absolute;left:0;right:0;bottom:0;top:auto;width:auto;flex-basis:auto;height:56%;
+    border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+    transform:translateY(102%);transition:transform .3s cubic-bezier(.22,.9,.3,1);
+    box-shadow:0 -10px 30px rgba(74,54,32,.16);padding:14px 16px 30px;
+  }
+  .panel.open{transform:none}
+  .panel::before{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:38px;height:4px;border-radius:3px;background:rgba(92,72,50,.2)}
+  .graph-toolbar{top:10px;left:10px;gap:5px}
+  .gbtn{padding:5px 8px;font-size:11.5px}
+  .graph-hint{display:none}
+  .scroll{padding:14px 14px 40px}
+  .statusbar{display:none}
+  .triple-tools input{max-width:none}
+}
